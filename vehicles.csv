@@ -1,0 +1,10 @@
+1;Car;Toyota;Corolla;2020;100;true
+2;Car;Ford;Focus;2018;90;false
+3;Car;Honda;Civic;2019;110;false
+4;Motorcycle;Yamaha;YZF-R6;2021;150;false;A
+5;Car;BMW;X5;2022;200;false
+6;Motorcycle;Kawasaki;Ninja 650;2020;130;false;A1
+7;Car;Mercedes;C-Class;2017;120;false
+8;Motorcycle;Suzuki;GSX-R1000;2019;140;false;AM
+12;Car;TestCar1;Corolla;2018;100;false
+12;Motorcycle;TestMotor;Corolla;2018;100;false;A1
