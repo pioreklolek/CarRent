@@ -1,28 +1,33 @@
 package org.example;
-
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.UUID;
-
-@Data
-@Builder
 @Entity
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Table(name = "users")
 public class User {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id = UUID.randomUUID().toString();
+    private String id;
+
+    @Column(nullable = false, unique = true)
     private String login;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private String role;
 
     public User(String login, String password, String role) {
         this.login = login;
         this.password = password;
         this.role = role;
-    }
+        }
+
 
     public String getLogin() {
         return login;

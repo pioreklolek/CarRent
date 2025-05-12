@@ -1,113 +1,78 @@
-    package org.example;
+package org.example;
 
-    import com.google.gson.annotations.SerializedName;
-    import jakarta.persistence.*;
-    import lombok.*;
+import jakarta.persistence.*;
+import lombok.*;
 
-    import java.util.Map;
-    import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    @Entity
-    @Inheritance(strategy = InheritanceType.JOINED)
-    @DiscriminatorColumn(name = "type")
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type")
+@Table(name = "vehicle")
+public abstract class Vehicle {
 
+    @Id
+    private String id;
 
-    public abstract class Vehicle {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private int id;
+    private String category;
+    private String brand;
+    private String model;
+    private int year;
+    private int price;
 
-        private String category;
-        private  String brand, model;
-        private int year;
-        private  int price;
+    private boolean rented;
 
-        @SerializedName("rented")
-        private boolean rented;
+    @Column(nullable = false, unique = true)
+    private String plate;
 
+    @ElementCollection
+    @CollectionTable(name = "vehicle_attributes", joinColumns = @JoinColumn(name = "vehicle_id"))
+    @MapKeyColumn(name = "attribute_key")
+    @Column(name = "attribute_value")
+    private Map<String, String> attributes;
 
-        private String plate;
-
-        @ElementCollection
-        @CollectionTable(name = "vehicle_attributes", joinColumns = @JoinColumn(name = "vehicle_id"))
-        @MapKeyColumn(name = "attribute_key")
-        @Column(name = "attribute_value")
-        private Map<String, String> attributes;
-
-        public Vehicle(int id,String category, String brand, String model, int year, int price) {
-            this.brand = brand;
-            this.category = category;
-            this.model = model;
-            this.year = year;
-            this.price = price;
-            this.id = id;
-        }
-
-       /* public String toCsv() {
-            return id + ";" + category + ";" + brand + ";" + model + ";" + year + ";" + price + ";" + rented;
-        }*/
-
-      /*  @Override
-        public String toString() {
-            return id + " " + category + " " + brand + " " + model + " " + year + " " + price + " " + (rented ? "Wypożyczony" : "Dostępny");
-        }*/
-
-        public int getId() {
-            return id;
-        }
-
-        public String getCategory() {
-            return category;
-        }
-
-        public String getBrand() {
-            return brand;
-        }
-
-        public boolean isRented() {
-            return rented;
-        }
-
-        public int getPrice() {
-            return price;
-        }
-
-        public int getYear() {
-            return year;
-        }
-
-        public String getModel() {
-            return model;
-        }
-
-        void rentVehicle() {
-            this.rented = true;
-        }
-
-        void returnVehicle() {
-            this.rented = false;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Vehicle vehicle = (Vehicle) o;
-            return id == vehicle.id &&
-                    year == vehicle.year &&
-                    price == vehicle.price &&
-                    rented == vehicle.rented &&
-                    Objects.equals(brand, vehicle.brand) &&
-                    Objects.equals(model, vehicle.model) &&
-                    Objects.equals(category, vehicle.category);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id,category,brand,model,year,price,rented);
-        }
+    public Vehicle(String category, String brand, String model, int year, int price, String plate, Map<String, String> attributes) {
+        this.category = category;
+        this.brand = brand;
+        this.model = model;
+        this.year = year;
+        this.price = price;
+        this.plate = plate;
+        this.attributes = attributes != null ? attributes : new HashMap<>();
+        this.rented = false;
     }
+
+    public void rentVehicle() {
+        this.rented = true;
+    }
+
+    public void returnVehicle() {
+        this.rented = false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Vehicle)) return false;
+        Vehicle vehicle = (Vehicle) o;
+        return year == vehicle.year &&
+                price == vehicle.price &&
+                rented == vehicle.rented &&
+                Objects.equals(id, vehicle.id) &&
+                Objects.equals(brand, vehicle.brand) &&
+                Objects.equals(model, vehicle.model) &&
+                Objects.equals(category, vehicle.category) &&
+                Objects.equals(plate, vehicle.plate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, category, brand, model, year, price, rented, plate);
+    }
+}
