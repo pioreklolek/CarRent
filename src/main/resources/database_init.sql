@@ -1,9 +1,7 @@
--- USUNIĘCIE ISTNIEJĄCYCH TABEL
 DROP TABLE IF EXISTS rental;
 DROP TABLE IF EXISTS vehicle;
 DROP TABLE IF EXISTS users;
 
--- UTWORZENIE TABEL
 CREATE TABLE users (
                        id TEXT PRIMARY KEY,
                        login TEXT NOT NULL UNIQUE,
@@ -13,15 +11,15 @@ CREATE TABLE users (
 
 CREATE TABLE vehicle (
                          id TEXT PRIMARY KEY,
-                         type TEXT NOT NULL, -- dodana kolumna dla Hibernate
+                         type TEXT NOT NULL,
                          category TEXT,
                          brand TEXT NOT NULL,
                          model TEXT NOT NULL,
                          year INT NOT NULL,
                          plate TEXT NOT NULL UNIQUE,
                          price NUMERIC NOT NULL,
-                         rented BOOLEAN DEFAULT FALSE, -- dodana kolumna
-                         licence_category TEXT, -- przeniesiona z atrybutów JSON
+                         rented BOOLEAN DEFAULT FALSE,
+                         licence_category TEXT,
                          attributes JSONB
 );
 
@@ -35,12 +33,10 @@ CREATE TABLE rental (
                         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- WSTAWIENIE UŻYTKOWNIKÓW
 INSERT INTO users (id, login, password, role) VALUES
                                                   ('77070363-7936-40c7-aa54-0ac846e66e09', 'admin', '$2a$10$0N0ygrJTriri2PGm1UfDGuyyEZ92/Hmh3GpZxKBJdTQZhLwAil8aS', 'admin'),
                                                   ('edd027ee-4d8e-4e62-b2d0-8a62321a5eed', 'user', '$2a$10$yPcfpBpe9EvRNR3t/aiyneLtNDneXKzg.fxwEZ8cw/0eWidu5sStW', 'user');
 
--- WSTAWIENIE POJAZDÓW
 INSERT INTO vehicle (id, type, category, brand, model, year, plate, price, rented, licence_category, attributes) VALUES
                                                                                                                      ('1', 'Car', 'Car', 'Toyota', 'Corolla', 2020, 'LU123', 100, false, NULL, '{}'),
                                                                                                                      ('2', 'Car', 'Car', 'Ford', 'Focus', 2018, 'LU456', 100, false, NULL, '{}'),

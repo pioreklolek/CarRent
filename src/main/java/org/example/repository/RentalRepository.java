@@ -1,11 +1,15 @@
 package org.example.repository;
 
-import org.example.Rental;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.example.model.Rental;
 
 import java.util.List;
 
-public interface RentalRepository extends JpaRepository<Rental, String> {
+public interface RentalRepository{
+    void save(Rental rental);
+    void delete(Rental rental);
     List<Rental> findByUserId(String userId);
     List<Rental> findByVehicleId(String vehicleId);
+    List<Rental> findAll();
+
+    void deleteById(String id);
 }

@@ -1,7 +1,8 @@
-package org.example;
+package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.model.Vehicle;
 
 import java.util.Map;
 

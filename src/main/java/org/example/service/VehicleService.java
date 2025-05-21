@@ -1,12 +1,10 @@
 package org.example.service;
 
-import org.example.Vehicle;
+import org.example.model.Vehicle;
 import org.example.repository.VehicleRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class VehicleService {
     private final VehicleRepository repo;
 
@@ -23,7 +21,7 @@ public class VehicleService {
     }
 
     public Vehicle get(String id) {
-        return repo.findById(id).orElse(null);
+        return repo.findById(id);
     }
 
     public void add(Vehicle v) {

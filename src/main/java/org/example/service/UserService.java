@@ -1,12 +1,11 @@
 package org.example.service;
 
-import org.example.User;
+import org.example.model.User;
 import org.example.repository.UserRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+
 public class UserService {
     private final UserRepository repo;
 
@@ -15,7 +14,7 @@ public class UserService {
     }
 
     public User getByLogin(String login) {
-        return repo.findByLogin(login).orElse(null);
+        return repo.findByLogin(login);
     }
 
     public List<User> getAll() {

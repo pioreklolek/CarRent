@@ -1,8 +1,8 @@
 package org.example.service;
 
-import org.example.Rental;
-import org.example.User;
-import org.example.Vehicle;
+import org.example.model.Rental;
+import org.example.model.User;
+import org.example.model.Vehicle;
 import org.example.repository.RentalRepository;
 import org.example.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
-@Service
 public class RentalService {
     private final RentalRepository repo;
     private final VehicleRepository vehicleRepo;
@@ -79,9 +77,11 @@ public class RentalService {
 
         repo.delete(rental);
 
-        Vehicle vehicle = vehicleRepo.findById(vehicleId).orElseThrow(() -> new RuntimeException("Pojazd nie znaleziony"));
+        Vehicle vehicle = vehicleRepo.findById(vehicleId);
+        if (vehicle == null) {
+            throw new RuntimeException("Pojazd nie znaleziony");
+        }
         vehicle.setRented(false);
-
         vehicleRepo.save(vehicle);
     }
 }

@@ -1,4 +1,4 @@
-package org.example;
+package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -6,21 +6,21 @@ import lombok.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "type")
-@Table(name = "vehicle")
-public abstract class Vehicle {
+@DiscriminatorColumn(name = "category", discriminatorType = DiscriminatorType.STRING)
+public class Vehicle {
 
     @Id
     private String id;
 
+    @Column(insertable = false, updatable = false)
     private String category;
+
     private String brand;
     private String model;
     private int year;
@@ -70,6 +70,8 @@ public abstract class Vehicle {
                 Objects.equals(category, vehicle.category) &&
                 Objects.equals(plate, vehicle.plate);
     }
+
+
 
     @Override
     public int hashCode() {
