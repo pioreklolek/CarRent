@@ -5,11 +5,14 @@ import org.example.model.Vehicle;
 import java.util.List;
 
 public interface VehicleRepository {
-    void save(Vehicle vehicle);
+    Vehicle save(Vehicle vehicle);
     void delete(Vehicle vehicle);
-    Vehicle findById(String id);
+    Vehicle findById(Long id);
     List<Vehicle> findAll();
     List<Vehicle> findByRentedFalse();
-    void deleteById(String id);
-
+    List<Vehicle> findAllActive();
+    void deleteById(Long id);
+    List<Vehicle> findByRentedTrue();
+    List<Vehicle> getAvailabeVehicles();
+    List<Vehicle> findByDeletedTrue();
     }

@@ -2,7 +2,6 @@ package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.model.Vehicle;
 
 import java.util.Map;
 
@@ -25,7 +24,7 @@ public class Motorcycle extends Vehicle {
 
     @Override
     public String toString() {
-        return getId() + " " + getCategory() + " " + getBrand() + " " + getModel() + " " +
+        return getId() + " " + getType() + " " + getBrand() + " " + getModel() + " " +
                 getYear() + " "  + getPlate() + " " +
                 (licenceCategory != null ? licenceCategory + " " : "") +
                 getPrice() + " " +

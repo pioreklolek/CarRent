@@ -10,13 +10,14 @@
 
     public class Rental {
         @Id
-        private String id;
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
 
         @Column(name = "vehicle_id", nullable = false)
-        private String vehicleId;
+        private Long vehicleId;
 
         @Column(name = "user_id", nullable = false)
-        private String userId;
+        private Long userId;
 
         @Column(name = "rent_date", nullable = false)
         private String rentDate;
@@ -24,7 +25,10 @@
         @Column(name = "return_date", nullable = false)
         private String returnDate;
 
-        public Rental(String vehicleId, String userId, String rentDate, String returnDate) {
+        @Column(name = "returned", nullable = false)
+        private boolean returned = false;
+
+        public Rental(Long vehicleId, Long userId, String rentDate, String returnDate) {
             this.vehicleId = vehicleId;
             this.userId = userId;
             this.rentDate = rentDate;
@@ -32,15 +36,15 @@
         }
 
 
-        public String getId() {
+        public Long getId() {
             return id;
         }
 
-        public String getVehicleId() {
+        public Long getVehicleId() {
             return vehicleId;
         }
 
-        public String getUserId() {
+        public Long getUserId() {
             return userId;
         }
 
@@ -66,5 +70,12 @@
 
         public void setEndDate(String l) {
             this.returnDate = String.valueOf(l);
+        }
+
+        public boolean isReturned() {
+            return returned;
+        }
+        public void setReturned(boolean returned) {
+            this.returned = returned;
         }
     }

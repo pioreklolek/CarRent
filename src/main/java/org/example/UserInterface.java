@@ -1,8 +1,5 @@
 package org.example;
-import org.example.model.Car;
-import org.example.model.Motorcycle;
-import org.example.model.User;
-import org.example.model.Vehicle;
+import org.example.model.*;
 import org.example.repository.*;
 import org.example.service.*;
 
@@ -67,24 +64,26 @@ public class UserInterface {
         System.out.println("""
                 1. Lista pojazdów
                 2. Lista użytkowników
-                3. Lista wypożyczeń
-                4. Wypożycz pojazd dla użytkownika
-                5. Dodaj pojazd
-                6. Usuń pojazd
-                7. Dodaj użytkownika
-                8. Usuń użytkownika
+                3. Lista wypożyczeń użytkownika
+                4. Wszystkie aktualne wypożyczenia
+                5. Wypożycz pojazd dla użytkownika
+                6. Dodaj pojazd
+                7. Usuń pojazd
+                8. Dodaj użytkownika
+                9. Usuń użytkownika
                 0. Wyjdź
                 """);
         int choice = getValidChoice();
         switch (choice) {
             case 1 -> showAllVehicles();
             case 2 -> showUsers();
-            case 3 -> showRentals();
-            case 4 -> rentVehicleForUser();
-            case 5 -> addVehicle();
-            case 6 -> removeVehicle();
-            case 7 -> addUser();
-            case 8 -> removeUser();
+            case 3 -> showUserRentalsAdmin();
+            case 4 -> showAllCurentRentals();
+            case 5 -> rentVehicleForUser();
+            case 6 -> addVehicle();
+            case 7 -> removeVehicle();
+            case 8 -> addUser();
+            case 9  -> removeUser();
             case 0 -> System.exit(0);
         }
     }
@@ -94,16 +93,18 @@ public class UserInterface {
         System.out.println("""
                 1. Lista dostępnych pojazdów
                 2. Wypożycz pojazd
-                3. Moje wypożyczenia
-                4. Zwróć pojazd
+                3. Moje aktualne wypożyczenia
+                4. Moja historia wypożyczeń
+                5. Zwróć pojazd
                 0. Wyjdź
                 """);
         int choice = getValidChoice();
         switch (choice) {
             case 1 -> showAvailableVehicles();
             case 2 -> rentVehicle();
-            case 3 -> showUserRentals();
-            case 4 -> returnVehicle();
+            case 3 -> showUserCurrentRentals();
+            case 4 -> showUserHistoryRetals();
+            case 5 -> returnVehicle();
             case 0 -> System.exit(0);
         }
     }
@@ -118,6 +119,17 @@ public class UserInterface {
             }
         }
     }
+    private Long getValidId() {
+        while (true) {
+            String input = scanner.nextLine();
+            try {
+                return Long.parseLong(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Błąd: Podaj poprawne ID! (LICZBĘ!)\n");
+                System.out.println("Spróbuj ponownie: ");
+            }
+        }
+    }
 
     private void showAvailableVehicles() {
         List<Vehicle> availableVehicles = vehicleRepo.findByRentedFalse();
@@ -126,7 +138,7 @@ public class UserInterface {
             System.out.println("Brak dostępnych pojazdów.");
             return;
         }
-        availableVehicles.sort(Comparator.comparingInt((v -> Integer.parseInt(v.getId()))));
+        availableVehicles.sort(Comparator.comparingLong(Vehicle::getId));
         System.out.println("\n===== DOSTĘPNE POJAZDY =====");
         System.out.printf("%-5s %-10s %-15s %-20s %-10s %-15s %-20s %-20s %-5s \n",
                 "ID", "Typ", "Marka", "Model", "Rok"," Rejestracja"," Kategoria Licencji"," Atrybuty", "Cena" );
@@ -134,8 +146,8 @@ public class UserInterface {
         System.out.println("==============================================================================================================================");
 
         for (Vehicle v : availableVehicles) {
-            String type = (v.getCategory().equals("Car")) ? "Samochód" :
-                    (v.getCategory().equals("Motorcycle")) ? "Motocykl" : "Inne";
+            String type = (v.getType().equals("Car")) ? "Samochód" :
+                    (v.getType().equals("Motorcycle")) ? "Motocykl" : "Inne";
 
             String licenseCategory = "B";
 
@@ -158,13 +170,14 @@ public class UserInterface {
                     v.getPrice());
         }
     }
+
     private void showAllVehicles() {
     List<Vehicle> allVehicles  = vehicleRepo.findAll();
     if (allVehicles.isEmpty()){
         System.out.println("Brak pojazdów w bazie.");
         return;
         }
-        allVehicles.sort(Comparator.comparingInt((v -> Integer.parseInt(v.getId()))));
+        allVehicles.sort(Comparator.comparingLong(Vehicle::getId));
 
         System.out.println("\n===== WSZYSTKIE POJAZDY =====");
         System.out.printf("%-5s %-10s %-15s %-20s %-10s %-15s %-20s %-20s %-5s \n",
@@ -172,8 +185,8 @@ public class UserInterface {
         System.out.println("==============================================================================================================================");
 
         for (Vehicle v : allVehicles) {
-            String type = (v.getCategory().equals("Car")) ? "Samochód" :
-                    (v.getCategory().equals("Motorcycle")) ? "Motocykl" : "Inne";
+            String type = (v.getType().equals("Car")) ? "Samochód" :
+                    (v.getType().equals("Motorcycle")) ? "Motocykl" : "Inne";
 
             String licenseCategory = "B";
 
@@ -199,7 +212,6 @@ public class UserInterface {
                     rented);
         }
     }
-
     private void showUsers() {
         List<User> users = userRepo.findAll();
         if (users.isEmpty()) {
@@ -218,11 +230,78 @@ public class UserInterface {
         }
     }
 
-    private void showRentals() {
-        rentalRepo.findAll().forEach(System.out::println);
+    private void showUserRentalsAdmin() {
+        System.out.print("Podaj login użytkownika: ");
+        String login = scanner.nextLine();
+        User user = userRepo.findByLogin(login);
+
+        if (user == null) {
+            System.out.println("Nie znaleziono użytkownika.");
+            return;
+        }
+
+        List<Rental> userRentals = rentalRepo.findByUserId(user.getId());
+        if (userRentals.isEmpty()) {
+            System.out.println("Użytkownik nie posiada żadnych wypożyczeń.");
+            return;
+        }
+
+        System.out.printf("====== WYPOŻYCZENIA UŻYTKOWNIKA: %s ======\n", user.getLogin());
+
+        for (Rental rental : userRentals) {
+            Vehicle vehicle = vehicleRepo.findById(rental.getVehicleId());
+            if (vehicle == null) continue;
+
+            String status = (rental.getReturnDate() == null) ? "AKTYWNE" : "ZWRÓCONE";
+            String returnInfo = (rental.getReturnDate() != null)
+                    ? rental.getReturnDate().toString()
+                    : "NIE ZWRÓCONO";
+
+            System.out.println("ID: " + vehicle.getId() +
+                    ", Pojazd: " + vehicle.getBrand() + " " + vehicle.getModel() +
+                    ", Data wypożyczenia: " + rental.getRentDate() +
+                    ", Data zwrotu: " + returnInfo +
+                    ", Status: " + status);
+        }
     }
 
-    private void showUserRentals() {
+
+    private void showUserCurrentRentals() {
+        System.out.printf("====== AKTUALNE WYPOŻYCZENIA: %s ======\n", currentUser.getLogin());
+
+        List<Rental> currentRentals = rentalRepo.findByUserId(currentUser.getId()).stream()
+                .filter(rental -> rental.getReturnDate() == null)
+                .toList();
+
+        if (currentRentals.isEmpty()) {
+            System.out.println("Brak aktywnych wypożyczeń.");
+            return;
+        }
+
+        currentRentals.forEach(rental -> {
+            Vehicle vehicle = vehicleRepo.findById(rental.getVehicleId());
+            if (vehicle != null) {
+                System.out.println("ID: " + vehicle.getId() +
+                        ", Pojazd: " + vehicle.getBrand() + " " + vehicle.getModel() +
+                        ", Data wypożyczenia: " + rental.getRentDate());
+            }
+        });
+    }
+    private void showUserHistoryRetals() {
+        System.out.printf("====== HISTORIA WYPOŻYCZEŃ: %s ======\n", currentUser.getLogin());
+        rentalRepo.findByUserId(currentUser.getId()).stream()
+                .filter(rental -> rental.getReturnDate() != null)
+                .forEach(rental -> {
+                    Vehicle vehicle = vehicleRepo.findById(rental.getVehicleId());
+                    if (vehicle != null) {
+                        System.out.println("ID: " + vehicle.getId() +
+                                ", Pojazd: " + vehicle.getBrand() + " " + vehicle.getModel() +
+                                ", Data wypożyczenia: " + rental.getRentDate() +
+                                ", Data zwrotu: " + rental.getReturnDate());
+                    }
+                });
+    }
+    private void showUserRentals() { //pokazuje wszystko, nie uzywane
         rentalRepo.findAll().stream()
                 .filter(r -> r.getUserId().equals(currentUser.getId()))
                 .forEach(rental -> {
@@ -235,17 +314,46 @@ public class UserInterface {
                     }
                 });
     }
+    private void showAllCurentRentals() {
+        List<Rental> allRentals = rentalRepo.findAll();
 
+        List<Rental> activeRentals = allRentals.stream()
+                .filter(rental -> rental.getReturnDate() == null)
+                .toList();
+
+        if (activeRentals.isEmpty()) {
+            System.out.println("Brak aktywnych wypożyczeń.");
+            return;
+        }
+
+        System.out.println("\n===== WSZYSTKIE AKTUALNE WYPOŻYCZENIA =====");
+        System.out.printf("%-15s %-10s %-20s %-20s %-20s\n", "Login", "ID pojazdu", "Marka", "Model", "Data wypożyczenia");
+        System.out.println("===============================================================================");
+
+        for (Rental rental : activeRentals) {
+            User user = userRepo.findById(rental.getUserId());
+            Vehicle vehicle = vehicleRepo.findById(rental.getVehicleId());
+
+            if (user != null && vehicle != null) {
+                System.out.printf("%-15s %-10s %-20s %-20s %-20s\n",
+                        user.getLogin(),
+                        vehicle.getId(),
+                        vehicle.getBrand(),
+                        vehicle.getModel(),
+                        rental.getRentDate().toString());
+            }
+        }
+    }
     private void rentVehicle() {
         System.out.print("Podaj ID pojazdu: ");
-        String vehicleId = scanner.nextLine();
+        Long vehicleId = getValidId();
         Vehicle vehicle = vehicleRepo.findById(vehicleId);
         if (vehicle != null) {
             if (vehicle.isRented()) {
                 System.out.println("Pojazd już wypożyczony.");
                 return;
             }
-            rentalService.rentVehicle(currentUser, vehicle);
+            rentalService.rent(vehicle.getId(), currentUser.getId());
             System.out.println("Wypożyczono pojazd: " + vehicle.getBrand());
         } else {
             System.out.println("Nie znaleziono pojazdu.");
@@ -261,11 +369,11 @@ public class UserInterface {
             return;
         }
         System.out.print("ID pojazdu: ");
-        String vehicleId = scanner.nextLine();
+        Long vehicleId = getValidId();
         Vehicle vehicle = vehicleRepo.findById(vehicleId);
         if (vehicle != null) {
             if (!vehicle.isRented()) {
-                rentalService.rentVehicle(user, vehicle);
+                rentalService.rent(vehicle.getId(),user.getId());
                 System.out.println("Wypożyczono pojazd dla użytkownika.");
             } else {
                 System.out.println("Pojazd już wypożyczony.");
@@ -277,8 +385,8 @@ public class UserInterface {
 
     private void returnVehicle() {
         System.out.print("ID pojazdu do zwrotu: ");
-        String vehicleId = scanner.nextLine();
-        rentalService.returnVehicle(currentUser.getId(), vehicleId);
+        Long vehicleId = getValidId();
+        rentalService.returnRental(vehicleId, currentUser.getId());
     }
 
     private void addUser() {
@@ -299,7 +407,7 @@ public class UserInterface {
 
     private void removeVehicle() {
         System.out.print("ID pojazdu do usunięcia: ");
-        String vehicleId = scanner.nextLine();
+        Long vehicleId = getValidId();
         vehicleRepo.deleteById(vehicleId);
     }
 

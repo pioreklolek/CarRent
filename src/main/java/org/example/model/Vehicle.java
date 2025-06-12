@@ -2,6 +2,8 @@ package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,14 +14,16 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "category", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
+@Table(name = "vehicle")
 public class Vehicle {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(insertable = false, updatable = false)
-    private String category;
+    private String type;
 
     private String brand;
     private String model;
@@ -28,17 +32,18 @@ public class Vehicle {
 
     private boolean rented;
 
+    @Column(name = "deleted")
+    private boolean deleted = false;
+
+
     @Column(nullable = false, unique = true)
     private String plate;
 
-    @ElementCollection
-    @CollectionTable(name = "vehicle_attributes", joinColumns = @JoinColumn(name = "vehicle_id"))
-    @MapKeyColumn(name = "attribute_key")
-    @Column(name = "attribute_value")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
     private Map<String, String> attributes;
-
-    public Vehicle(String category, String brand, String model, int year, int price, String plate, Map<String, String> attributes) {
-        this.category = category;
+    public Vehicle(String type, String brand, String model, int year, int price, String plate, Map<String, String> attributes) {
+        this.type = type;
         this.brand = brand;
         this.model = model;
         this.year = year;
@@ -48,13 +53,6 @@ public class Vehicle {
         this.rented = false;
     }
 
-    public void rentVehicle() {
-        this.rented = true;
-    }
-
-    public void returnVehicle() {
-        this.rented = false;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -67,14 +65,20 @@ public class Vehicle {
                 Objects.equals(id, vehicle.id) &&
                 Objects.equals(brand, vehicle.brand) &&
                 Objects.equals(model, vehicle.model) &&
-                Objects.equals(category, vehicle.category) &&
+                Objects.equals(type, vehicle.type) &&
                 Objects.equals(plate, vehicle.plate);
     }
 
 
+    public boolean isDeleted() {
+        return deleted;
+    }
 
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
     @Override
     public int hashCode() {
-        return Objects.hash(id, category, brand, model, year, price, rented, plate);
+        return Objects.hash(id, type, brand, model, year, price, rented, plate);
     }
 }

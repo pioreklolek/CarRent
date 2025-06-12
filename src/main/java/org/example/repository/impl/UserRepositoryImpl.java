@@ -3,9 +3,10 @@ package org.example.repository.impl;
 import org.example.model.User;
 import org.example.repository.UserRepository;
 import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public class UserRepositoryImpl implements UserRepository {
     private final Session session;
 
@@ -33,6 +34,10 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public User findById(Long id) {
+        return session.get(User.class, id);
+    }
+    @Override
     public void delete(User user) {
         session.beginTransaction();
         session.delete(user);
@@ -40,7 +45,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(Long id) {
         session.beginTransaction();
         User user = session.get(User.class, id);
         if (user != null) {

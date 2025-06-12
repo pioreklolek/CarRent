@@ -2,7 +2,6 @@ package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.model.Vehicle;
 
 import java.util.Map;
 
@@ -14,12 +13,12 @@ import java.util.Map;
 public class Car extends Vehicle {
 
     public Car(String brand, String model, int year, int price, String plate, Map<String, String> attributes) {
-        super("Car", brand, model, year, price, plate, attributes);  // "Car" jako kategoria
+        super("Car", brand, model, year, price, plate, attributes);
     }
 
     @Override
     public String toString() {
-        return getId() + " " + getCategory() + " " + getBrand() + " " + getModel() + " " +
+        return getId() + " " + getType() + " " + getBrand() + " " + getModel() + " " +
                 getYear() + " " + getPlate() + " " + getPrice() + " " +
                 (isRented() ? "Wypożyczony" : "Dostępny");
     }

@@ -4,31 +4,16 @@ import org.example.model.Vehicle;
 import org.example.repository.VehicleRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-public class VehicleService {
-    private final VehicleRepository repo;
-
-    public VehicleService(VehicleRepository repo) {
-        this.repo = repo;
-    }
-
-    public List<Vehicle> getAll() {
-        return repo.findAll();
-    }
-
-    public List<Vehicle> getAvailable() {
-        return repo.findByRentedFalse();
-    }
-
-    public Vehicle get(String id) {
-        return repo.findById(id);
-    }
-
-    public void add(Vehicle v) {
-        repo.save(v);
-    }
-
-    public void remove(String id) {
-        repo.deleteById(id);
-    }
+public interface VehicleService {
+    public List<Vehicle> getAll();
+    List<Vehicle> getAllActive();
+    Optional<Vehicle> findById(Long vehicleId);
+    Vehicle save(Vehicle vehicle);
+    public List<Vehicle> getAvailable();
+    public List<Vehicle> getRented();
+    boolean isAvailable(Long vehicleId);
+    void deleteById(Long vehicleId);
+    public List<Vehicle> getDeleted();
 }

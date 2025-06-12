@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.hibernate.HibernateUtill;
+import org.example.hibernate.HibernateUtil;
 import org.example.repository.RentalRepository;
 import org.example.repository.UserRepository;
 import org.example.repository.VehicleRepository;
@@ -11,13 +11,15 @@ import org.example.service.AuthService;
 import org.example.service.RentalService;
 import org.example.service.UserService;
 import org.example.service.VehicleService;
+import org.example.service.impl.RentalServiceImpl;
+import org.example.service.impl.VehicleServiceImpl;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-public class VehicleRentalApp {
+public class VehicleRentalCliApp {
 
     public static void main(String[] args) {
-        SessionFactory sessionFactory = HibernateUtill.getSessionFactory();
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
 
         UserRepository userRepository = new UserRepositoryImpl(session);
@@ -26,8 +28,8 @@ public class VehicleRentalApp {
 
         AuthService authService = new AuthService(userRepository);
         UserService userService = new UserService(userRepository);
-        VehicleService vehicleService = new VehicleService(vehicleRepository);
-        RentalService rentalService = new RentalService(rentalRepository, vehicleRepository);
+        VehicleService vehicleService = new VehicleServiceImpl(vehicleRepository);
+        RentalService rentalService = new RentalServiceImpl(rentalRepository, vehicleRepository);
 
         UserInterface ui = new UserInterface(
                 vehicleRepository,

@@ -8,7 +8,9 @@ public interface UserRepository {
 void save(User user);
 User findByLogin(String login);
 List<User> findAll();
+    User findById(Long id);
+
 void delete(User user);
 
-void deleteById(String id);
+void deleteById(Long id);
 }
