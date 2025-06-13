@@ -5,10 +5,10 @@ import org.example.model.User;
 import java.util.List;
 
 public interface UserRepository {
-void save(User user);
+User save(User user);
 User findByLogin(String login);
 List<User> findAll();
-    User findById(Long id);
+User findById(Long id);
 
 void delete(User user);
 

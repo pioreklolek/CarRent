@@ -1,22 +1,20 @@
 package org.example.service.impl;
 
-import jakarta.transaction.Transactional;
 import org.example.model.Rental;
 import org.example.model.Vehicle;
 import org.example.repository.RentalRepository;
 import org.example.repository.VehicleRepository;
 import org.example.service.RentalService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
+@Component
 public class RentalServiceImpl implements RentalService {
     private final RentalRepository rentalRepo;
     private final VehicleRepository vehicleRepo;
@@ -34,6 +32,10 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public Optional<Rental> findActiveRentalByVehicleId(Long vehicleId){
         return rentalRepo.findActiveRentalByVehicleId(vehicleId);
+    }
+    @Override
+    public List<Rental> findActiveRentalByUserId(Long userId){
+        return rentalRepo.findActiveRentalByUserId(userId);
     }
     @Override
     public Rental rent(Long vehicleId, Long userId) {

@@ -61,9 +61,17 @@ public class RentalRepositoryImpl implements RentalRepository {
     }
     @Override
     public Optional<Rental> findActiveRentalByVehicleId(Long vehicleId) {
-        return Optional.ofNullable(session.createQuery("FROM Rental WHERE vehicleId = :vehicleId", Rental.class)
+        return Optional.ofNullable(session.createQuery("FROM Rental WHERE vehicleId = :vehicleId AND returned = false", Rental.class)
                 .setParameter("vehicleId", vehicleId)
                 .uniqueResult());
+    }
+
+    @Override
+    public List<Rental> findActiveRentalByUserId(Long userId) {
+        return session.createQuery(
+                        "FROM Rental WHERE userId = :userId AND returned = false", Rental.class)
+                .setParameter("userId", userId)
+                .getResultList();
     }
     @Override
     public List<Rental> findAllActiveRentals() {

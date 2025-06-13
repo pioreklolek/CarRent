@@ -1,40 +1,20 @@
 package org.example.service;
 
 import org.example.model.User;
-import org.example.repository.UserRepository;
-
 import java.util.List;
 
 
-public class UserService {
-    private final UserRepository repo;
+public interface UserService {
 
-    public UserService(UserRepository repo) {
-        this.repo = repo;
-    }
 
-    public User getByLogin(String login) {
-        return repo.findByLogin(login);
-    }
+     User findByLogin(String login);
+     User findById(Long id);
 
-    public List<User> getAll() {
-        return repo.findAll();
-    }
+     List<User> findAll();
 
-    public void addUser(User user) {
-        repo.save(user);
-    }
-
-    public void deleteById(Long id) {
-        repo.deleteById(id);
-    }
-
-    public void deleteUserByLogin(String login) {
-        User user = getByLogin(login);
-        if (user != null) {
-            repo.delete(user);
-        } else {
-            throw new RuntimeException("Nie znaleziono użytkownika o podanym loginie");
-        }
-    }
+    void save(User user);
+     User createUser(String login, String password, String role);
+     void deleteById(Long id);
+     void deleteUserByLogin(String login);
+     User updateUser(Long id, User userDetails);
 }

@@ -7,6 +7,7 @@ import org.example.service.VehicleService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,34 +21,42 @@ public class VehicleController {
         this.vehicleService = vehicleService;
     }
     @GetMapping
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<List<Vehicle>> getAllVehicles() {
         return ResponseEntity.ok(vehicleService.getAll());
     }
     @GetMapping("/active")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<List<Vehicle>> getAllActiveVehicles() {
         return ResponseEntity.ok(vehicleService.getAllActive());
     }
     @GetMapping("/available")
+    @PreAuthorize("hasAuthority('user') or hasAuthority('admin')")
     public ResponseEntity<List<Vehicle>> getAvailableVehicles() {
         return ResponseEntity.ok(vehicleService.getAvailable());
     }
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<Vehicle> getVehicleById(@PathVariable Long id) {
         return vehicleService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     @GetMapping("/rented")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<List<Vehicle>> getRentedVehicles() {
         return ResponseEntity.ok(vehicleService.getRented());
     }
 
     @GetMapping("/deleted")
+    @PreAuthorize("hasAuthority('admin')")
+
     public ResponseEntity<List<Vehicle>> getDeletedVehicles() {
         return ResponseEntity.ok(vehicleService.getDeleted());
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<?> createVehicleDetailed(@Valid @RequestBody Map<String, Object> vehicleData) {
         try {
             String type = (String) vehicleData.getOrDefault("type", "Vehicle");
@@ -91,6 +100,7 @@ public class VehicleController {
         }
     }
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
         vehicleService.deleteById(id);
         return ResponseEntity.noContent().build();

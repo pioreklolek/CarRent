@@ -16,4 +16,5 @@ public interface RentalRepository{
     List<Rental> findAllActiveRentals();
     List<Rental> findAllRentalsHistory();
     List<Rental> historyByUserId(Long userId);
+    List<Rental> findActiveRentalByUserId(Long userId);
 }

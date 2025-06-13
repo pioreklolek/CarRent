@@ -23,4 +23,5 @@ public interface RentalService {
     List<Rental> allRentalHistory();
     List<Rental> historyByUserId(Long userId);
     List<Rental> historyByVehicleId(Long vehicleId);
+    List<Rental> findActiveRentalByUserId(Long userId);
 }

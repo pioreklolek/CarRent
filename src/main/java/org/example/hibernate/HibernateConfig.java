@@ -1,6 +1,5 @@
 package org.example.hibernate;
 
-import org.example.hibernate.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
