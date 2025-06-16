@@ -4,10 +4,12 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
@@ -23,10 +25,16 @@ public class JwtUtils {
     }
 
   public String generateJwtToken(Authentication auth) {
-      UserDetails userPrincipal = (UserDetails) auth.getPrincipal();
+      UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
+
+      List<String> roles = userPrincipal.getAuthorities().stream()
+              .map(GrantedAuthority::getAuthority)
+              .collect(Collectors.toList());
 
       return Jwts.builder()
               .setSubject(userPrincipal.getUsername())
+              .claim("roles", roles)
+              .claim("userId", userPrincipal.getId())
               .setIssuedAt(new Date())
               .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
               .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -47,6 +55,26 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+    @SuppressWarnings("unchecked")
+    public List<String> getRolesFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return (List<String>) claims.get("roles");
+    }
+
+    public Long getUserIdFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("userId", Long.class);
     }
     public boolean validateJwtToken(String authToken) {
         try {

@@ -1,16 +1,32 @@
 package org.example.repository;
 
 import org.example.model.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.util.List;
 
 public interface UserRepository {
-User save(User user);
-User findByLogin(String login);
-List<User> findAll();
-User findById(Long id);
+    User save(User user);
 
-void delete(User user);
+    @EntityGraph(attributePaths = "roles")
+    User findByLogin(String login); // wszyscsy usnieci tez
 
-void deleteById(Long id);
+    @EntityGraph(attributePaths = "roles")
+
+    List<User> findAll(); // wszyscy usunieci tez
+
+    @EntityGraph(attributePaths = "roles")
+
+    User findById(Long id); // wszysscy usunieci tez
+
+    void delete(User user); //soft
+
+    void deleteById(Long id); // soft
+
+    List<User> findAllActiveUsers();
+
+    List<User> findAllActiveUsersByRolename(String rolename);
+
+    List<User> findDeletedUsers();
+
 }

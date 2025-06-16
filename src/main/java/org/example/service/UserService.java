@@ -17,4 +17,11 @@ public interface UserService {
      void deleteById(Long id);
      void deleteUserByLogin(String login);
      User updateUser(Long id, User userDetails);
+     List<User> findAllDeletedUsers();
+     List<User> findAllActiveUsers();
+
+    String getAllRoles(User user);
+    String getPrimaryRole(User user);
+    User addRoleToUser(Long userId, String roleName);
+    User removeRoleFromUser(Long userId, String roleName);
 }

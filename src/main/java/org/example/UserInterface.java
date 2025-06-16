@@ -394,9 +394,33 @@ public class UserInterface {
         String login = scanner.nextLine();
         System.out.print("Hasło: ");
         String password = scanner.nextLine();
-        System.out.print("Rola (admin/user): ");
-        String role = scanner.nextLine();
-        authService.register(login, password, role);
+        System.out.print("Rola (admin/moderator/user): ");
+        String roleInput = scanner.nextLine();
+
+        Set<Role> roles = new HashSet<>();
+
+        switch (roleInput.toLowerCase()) {
+            case "admin":
+                roles.add(new Role("admin"));
+                break;
+            case "moderator":
+                roles.add(new Role("moderator"));
+                break;
+            case "user":
+                roles.add(new Role("user"));
+                break;
+            default:
+                System.out.println("Nieprawidłowa rola. Ustawiam domyślną rolę 'user'.");
+                roles.add(new Role("user"));
+                break;
+        }
+
+        User newUser = authService.register(login, password, roles);
+        if (newUser != null) {
+            System.out.println("Użytkownik został pomyślnie zarejestrowany!");
+        } else {
+            System.out.println("Błąd podczas rejestracji użytkownika.");
+        }
     }
 
     private void removeUser() {

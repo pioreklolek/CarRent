@@ -1,6 +1,9 @@
 package org.example.model;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 @Entity
 @Data
@@ -20,16 +23,33 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String role;
+    @ManyToMany(fetch = FetchType.EAGER)    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @Builder.Default
+    private Set<Role> roles = new HashSet<>();
 
-    public User(String login, String password, String role) {
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean deleted = false;
+
+    public User(String login, String password, Set<Role> roles) {
         this.login = login;
         this.password = password;
-        this.role = role;
+        this.roles = roles != null ? roles : new HashSet<>();
+        this.deleted = false;
         }
-
-
+        public User(String login, String password, Role role) {
+        this.login = login;
+        this.password = password;
+        this.roles = new HashSet<>();
+        if (role != null) {
+            this.roles.add(role);
+            }
+        this.deleted = false;
+        }
     public String getLogin() {
         return login;
     }
@@ -46,15 +66,36 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+
+
+    public Boolean getDeleted() {
+        return deleted;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
-
+    public boolean hasRole(String roleName) {
+       return  roles != null && roles.stream().anyMatch(role -> roleName.equals(role.getName()));
+    }
     public boolean isAdmin() {
-        return role.equals("admin");
+        return  hasRole("admin");
+    }
+    public boolean isModerator() {
+        return  hasRole("moderator");
+    }
+
+    public boolean isUser() {
+        return  hasRole("user");
+    }
+    public void addRole(Role role) {
+        if (role != null) {
+            this.roles.add(role);
+        }
+    }
+    public void removeRole(Role role) {
+        if (role != null){
+            this.roles.remove(role);
+        }
     }
 }

@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Set;
+
 public class RegisterRequest {
     @NotBlank
     @Size(min = 3, max = 30)
@@ -13,14 +15,14 @@ public class RegisterRequest {
     @Size(min = 6 , max = 60)
     private String password;
 
-    private  String role = "user";
+    private Set<String> roles;
 
     public RegisterRequest() {}
 
-    public RegisterRequest(String login, String password,String role) {
+    public RegisterRequest(String login, String password,Set<String> roles) {
         this.login = login;
         this.password = password;
-        this.role = role;
+        this.roles = roles;
     }
 
     public String getLogin() {
@@ -39,11 +41,11 @@ public class RegisterRequest {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public Set<String> getRoles() {
+        return roles;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
     }
 }

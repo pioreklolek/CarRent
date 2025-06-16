@@ -9,6 +9,7 @@ public interface RentalRepository{
     void save(Rental rental);
     void delete(Rental rental);
     List<Rental> findByUserId(Long userId);
+    Rental findById(Long id);
     List<Rental> findByVehicleId(Long vehicleId);
     List<Rental> findAll();
     void deleteById(Long id);

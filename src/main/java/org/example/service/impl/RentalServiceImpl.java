@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import java.util.Optional;
 public class RentalServiceImpl implements RentalService {
     private final RentalRepository rentalRepo;
     private final VehicleRepository vehicleRepo;
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public RentalServiceImpl(RentalRepository rentalRepo,VehicleRepository vehicleRepo) {
         this.rentalRepo = rentalRepo;
@@ -46,7 +48,11 @@ public class RentalServiceImpl implements RentalService {
         Rental rental = new Rental();
         rental.setVehicleId(vehicleId);
         rental.setUserId(userId);
-        rental.setStartDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.withSecond(0).withNano(0);
+        rental.setStartDate(start.format(DATE_TIME_FORMATTER));
+
         rental.setEndDate(null);
         rentalRepo.save(rental);
         vehicle.setRented(true);
@@ -58,7 +64,11 @@ public class RentalServiceImpl implements RentalService {
         Optional<Rental> rental = rentalRepo.findActiveRentalByVehicleId(vehicleId);
         if (rental.isPresent()) {
             Rental activeRental = rental.get();
-            activeRental.setEndDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime end = now.withSecond(0).withNano(0);
+            activeRental.setEndDate(end.format(DATE_TIME_FORMATTER));
+
             activeRental.setReturned(true);
             rentalRepo.save(activeRental);
             Vehicle vehicle = vehicleRepo.findById(vehicleId);

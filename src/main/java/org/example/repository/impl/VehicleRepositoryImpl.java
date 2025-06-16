@@ -1,88 +1,99 @@
 package org.example.repository.impl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.example.model.Car;
 import org.example.model.Motorcycle;
 import org.example.model.Vehicle;
 import org.example.repository.VehicleRepository;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 @Repository
+@Transactional
 public class VehicleRepositoryImpl implements VehicleRepository {
-    private final Session session;
+    @PersistenceContext
+    private  EntityManager entityManager;
 
-    public VehicleRepositoryImpl(Session session) {
-        this.session = session;
-    }
 
     @Override
     public Vehicle save(Vehicle vehicle) {
-        session.beginTransaction();
-        session.saveOrUpdate(vehicle);
-        session.getTransaction().commit();
-        return vehicle;
+        if (vehicle.getId() == null) {
+            entityManager.persist(vehicle);
+            return vehicle;
+        } else {
+            return entityManager.merge(vehicle);
+        }
     }
 
 
     @Override
     public void delete(Vehicle vehicle) {
-        session.beginTransaction();
-        vehicle.setDeleted(true);
-        session.update(vehicle);
-        session.getTransaction().commit();
+        Vehicle managedVehicle = entityManager.contains(vehicle) ? vehicle : entityManager.merge(vehicle);
+        managedVehicle.setDeleted(true);
+        entityManager.merge(managedVehicle);
     }
     @Override
     public void deleteById(Long vehicleId) {
         Vehicle vehicle = findById(vehicleId);
         if (vehicle != null) {
-            session.beginTransaction();
             vehicle.setDeleted(true);
-            session.update(vehicle);
-            session.getTransaction().commit();
+            entityManager.merge(vehicle);
         }
     }
 
     @Override
     public Vehicle findById(Long id) {
-        return session.get(Vehicle.class, id);
-    }
+        return entityManager.find(Vehicle.class, id);    }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Vehicle> findAll() {
-        List<Vehicle> result = session.createQuery("FROM Vehicle", Vehicle.class).getResultList();
-        return result;
+        return entityManager.createQuery("SELECT v FROM Vehicle v", Vehicle.class)
+                .getResultList();
+
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Vehicle> findByRentedFalse() {
-        List<Vehicle> result = new ArrayList<>();
-        result.addAll(session.createQuery("FROM Vehicle WHERE rented = false", Vehicle.class).getResultList());
-        return result;
+        return entityManager.createQuery("SELECT v FROM Vehicle v WHERE v.rented = false", Vehicle.class)
+                .getResultList();
     }
     @Override
+    @Transactional(readOnly = true)
     public List<Vehicle> getAvailabeVehicles() {
-        return session.createQuery("FROM Vehicle WHERE rented = false AND deleted = false", Vehicle.class).getResultList();
+        return entityManager.createQuery(
+                        "SELECT v FROM Vehicle v WHERE v.rented = false AND v.deleted = false", Vehicle.class)
+                .getResultList();
     }
     @Override
+    @Transactional(readOnly = true)
     public List<Vehicle> findByRentedTrue() {
-        List<Vehicle> result = new ArrayList<>();
-        result.addAll(session.createQuery("FROM Vehicle WHERE rented = true", Vehicle.class).getResultList());
-        return result;
+        return entityManager.createQuery("SELECT v FROM Vehicle v WHERE v.rented = true", Vehicle.class)
+                .getResultList();
     }
     public List<Car> findAllCars() {
-        return session.createQuery("FROM Car", Car.class).getResultList();
+        return entityManager.createQuery("SELECT c FROM Car c", Car.class)
+                .getResultList();
     }
     public List<Motorcycle> findAllMotorcycles() {
-        return session.createQuery("FROM Motorcycle", Motorcycle.class).getResultList();
+        return entityManager.createQuery("SELECT m FROM Motorcycle m", Motorcycle.class)
+                .getResultList();
     }
     @Override
+    @Transactional(readOnly = true)
     public List<Vehicle> findAllActive() {
-        return session.createQuery("FROM Vehicle WHERE deleted = false", Vehicle.class).getResultList();
-    }
+        return entityManager.createQuery("SELECT v FROM Vehicle v WHERE v.deleted = false", Vehicle.class)
+                .getResultList();    }
     @Override
+    @Transactional(readOnly = true)
     public List<Vehicle> findByDeletedTrue() {
-        return session.createQuery("FROM Vehicle WHERE deleted = true", Vehicle.class).getResultList();
+        return entityManager.createQuery("SELECT v FROM Vehicle v WHERE v.deleted = true", Vehicle.class)
+                .getResultList();
     }
 }

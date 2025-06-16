@@ -1,34 +1,37 @@
 package org.example.repository.impl;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import org.springframework.transaction.annotation.Transactional;
 import org.example.model.Rental;
 import org.example.repository.RentalRepository;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.context.annotation.Lazy;
 import java.util.List;
 import java.util.Optional;
 @Repository
-
+@Transactional
 public class RentalRepositoryImpl implements RentalRepository {
-    private final Session session;
+    @PersistenceContext
+    private  EntityManager entityManager;
 
-    public RentalRepositoryImpl(Session session) {
-        this.session = session;
-    }
 
     @Override
     public void save(Rental rental) {
-        session.beginTransaction();
-        session.saveOrUpdate(rental);
-        session.getTransaction().commit();
-    }
+        if (rental.getId() == null) {
+            entityManager.persist(rental);
+        } else {
+            entityManager.merge(rental);
+        }    }
 
     @Override
     public void delete(Rental rental) {
-        session.beginTransaction();
-        session.delete(rental);
-        session.getTransaction().commit();
-    }
+        Rental managedRental = entityManager.contains(rental) ? rental : entityManager.merge(rental);
+        entityManager.remove(managedRental);    }
 
     public void deleteById(Long id) {
         Rental rental = findById(id);
@@ -36,57 +39,72 @@ public class RentalRepositoryImpl implements RentalRepository {
             delete(rental);
         }
     }
-
+    @Override
+    @Transactional(readOnly = true)
     public Rental findById(Long id) {
-        return session.get(Rental.class, id);
-    }
+        return entityManager.find(Rental.class, id);    }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rental> findAll() {
-        return session.createQuery("FROM Rental", Rental.class).list();
-    }
+        return entityManager.createQuery("SELECT r FROM Rental r", Rental.class)
+                .getResultList();    }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rental> findByUserId(Long userId) {
-        return session.createQuery("FROM Rental WHERE userId = :userId", Rental.class)
+        return entityManager.createQuery("SELECT r FROM Rental r WHERE r.userId = :userId", Rental.class)
                 .setParameter("userId", userId)
-                .list();
+                .getResultList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rental> findByVehicleId(Long vehicleId) {
-        return session.createQuery("FROM Rental WHERE vehicleId = :vehicleId", Rental.class)
+        return entityManager.createQuery("SELECT r FROM Rental r WHERE r.vehicleId = :vehicleId", Rental.class)
                 .setParameter("vehicleId", vehicleId)
-                .list();
+                .getResultList();
     }
     @Override
+    @Transactional(readOnly = true)
     public Optional<Rental> findActiveRentalByVehicleId(Long vehicleId) {
-        return Optional.ofNullable(session.createQuery("FROM Rental WHERE vehicleId = :vehicleId AND returned = false", Rental.class)
-                .setParameter("vehicleId", vehicleId)
-                .uniqueResult());
+        TypedQuery<Rental> query = entityManager.createQuery(
+                        "SELECT r FROM Rental r WHERE r.vehicleId = :vehicleId AND r.returned = false",
+                        Rental.class)
+                .setParameter("vehicleId", vehicleId);
+
+        List<Rental> results = query.getResultList();
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rental> findActiveRentalByUserId(Long userId) {
-        return session.createQuery(
-                        "FROM Rental WHERE userId = :userId AND returned = false", Rental.class)
+        return entityManager.createQuery(
+                        "SELECT r FROM Rental r WHERE r.userId = :userId AND r.returned = false",
+                        Rental.class)
                 .setParameter("userId", userId)
                 .getResultList();
     }
     @Override
+    @Transactional(readOnly = true)
     public List<Rental> findAllActiveRentals() {
-        return session.createQuery("FROM Rental WHERE returned IS FALSE", Rental.class).list();
+        return entityManager.createQuery("SELECT r FROM Rental r WHERE r.returned = false", Rental.class)
+                .getResultList();
     }
     @Override
+    @Transactional(readOnly = true)
     public List<Rental> findAllRentalsHistory() {
-        return session.createQuery("FROM Rental WHERE returned IS TRUE", Rental.class).list();
+        return entityManager.createQuery("SELECT r FROM Rental r WHERE r.returned = true", Rental.class)
+                .getResultList();
     }
     @Override
+    @Transactional(readOnly = true)
     public List<Rental> historyByUserId(Long userId){
-        return session.createQuery(
-                        "FROM Rental WHERE userId = :userId AND returned = true",
+        return entityManager.createQuery(
+                        "SELECT r FROM Rental r WHERE r.userId = :userId AND r.returned = true",
                         Rental.class)
                 .setParameter("userId", userId)
-                .list();
+                .getResultList();
     }
 }

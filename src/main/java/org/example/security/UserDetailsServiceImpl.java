@@ -1,4 +1,4 @@
-package org.example.service.impl;
+package org.example.security;
 
 import org.example.model.User;
 import org.example.repository.UserRepository;
@@ -25,16 +25,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Użytkownik nie znaleziony: " + username);
         }
-        return new org.springframework.security.core.userdetails.User(
-                user.getLogin(),
-                user.getPassword(),
-                getAuthorities(user.getRole())
-        );
+        if(user.getDeleted()) {
+            throw new UsernameNotFoundException("Użytkownik został usunięty: " + username);
+        }
+        return UserPrincipal.create(user);
     }
     private Collection<? extends GrantedAuthority> getAuthorities(String role) {
-        return List.of(new SimpleGrantedAuthority(role.toLowerCase())); // w bazie  mam user, admin
+        return List.of(new SimpleGrantedAuthority(role.toLowerCase())); // w bazie  z malych
     }
     public User getUserByUsername(String username) {
         return userRepository.findByLogin(username);
     }
+
 }

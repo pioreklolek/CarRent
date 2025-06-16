@@ -1,18 +1,19 @@
 package org.example.dto;
 
+import java.util.List;
+
 public class JwtResponse {
     private String token;
     private String type = "Bearer";
     private Long id;
     private String login;
-    private String role;
-
-    public JwtResponse(String token, Long id, String login, String role) {
+    private List<String> roles;
+    public JwtResponse(String token, Long id, String login, List<String> roles) {
         this.token = token;
         this.type = type;
         this.id = id;
         this.login = login;
-        this.role = role;
+        this.roles = roles;
     }
 
     public String getToken() {
@@ -47,11 +48,10 @@ public class JwtResponse {
         this.login = login;
     }
 
-    public String getRole() {
-        return role;
+    public List<String> getRoles() {
+        return roles;
     }
-
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 }
