@@ -77,10 +77,10 @@ public class UserController {
     }
     @DeleteMapping("/removerole/{userId}")
     @PreAuthorize("hasAuthority('admin')")
-    public ResponseEntity<?> removeRoleFromUser(@PathVariable Long userId, @PathVariable String roleName) {
+    public ResponseEntity<?> removeRoleFromUser(@PathVariable Long userId, @RequestBody AddRoleRequest request) {
         try {
-             User user = userService.removeRoleFromUser(userId,roleName);
-             return ResponseEntity.ok(new MessageResponse("Rola " + roleName + "została zabrana użytkoniwkowi" + user.getLogin()));
+             User user = userService.removeRoleFromUser(userId,request.getRoleName());
+             return ResponseEntity.ok(new MessageResponse("Rola " + request.getRoleName() + " została zabrana użytkownikowi " + user.getLogin()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Błąd: " + e.getMessage()));
         }
