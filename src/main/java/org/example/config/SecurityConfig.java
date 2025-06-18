@@ -34,13 +34,16 @@ public class SecurityConfig {
                         //pub
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/vehicles", "/api/vehicles/available").permitAll()
+                        .requestMatchers("/api/payments/success").permitAll()
+                        .requestMatchers("/api/payments/cancel").permitAll()
+                        .requestMatchers("/api/payments/webhook").permitAll()
 
                         //admin
                         .requestMatchers("/api/vehicles/create","/api/vehicles/delete/").hasAuthority("admin")
                         .requestMatchers("/api/vehicles/history/**", "/api/vehicles/**","/api/vehicles/active","/api/vehicles/deleted").hasAuthority("admin")
 
                         //user
-                        .requestMatchers("/api/rentals/rent/**","/api/rentals/return/**").hasAuthority("user") // w bazie mam z malej
+                        .requestMatchers("/api/rentals/rent/**","/api/rentals/return/**").hasAuthority("user")
                         .requestMatchers("/api/rentals/history/user/**").hasAnyAuthority("admin", "user")
                         .requestMatchers("/api/rentals", "/api/rentals/history", "/api/rentals/history/vehicle").hasAuthority("admin")
                         .anyRequest().authenticated())

@@ -107,4 +107,16 @@ public class RentalRepositoryImpl implements RentalRepository {
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Rental findByStripeSessionId(String sessionId) {
+        TypedQuery<Rental> query = entityManager.createQuery(
+                        "SELECT r FROM Rental r WHERE r.stripeSessionId = :sessionId",
+                        Rental.class)
+                .setParameter("sessionId", sessionId);
+
+        List<Rental> results = query.getResultList();
+        return results.isEmpty() ? null : results.get(0);
+    }
 }

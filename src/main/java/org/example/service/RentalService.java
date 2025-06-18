@@ -24,4 +24,8 @@ public interface RentalService {
     List<Rental> historyByUserId(Long userId);
     List<Rental> historyByVehicleId(Long vehicleId);
     List<Rental> findActiveRentalByUserId(Long userId);
+    Rental findById(Long rentalId);
+    Rental updatePaymentStatus(Long rentalId, String stripePaymentId, boolean isCheckoutSession);
+    Rental findByStripeSessionId(String sessionId);
+    void save(Rental rental);
 }

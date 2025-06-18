@@ -77,6 +77,11 @@ public class Vehicle {
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
+
+    public int getPrice() {
+        return price;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id, type, brand, model, year, price, rented, plate);

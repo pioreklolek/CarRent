@@ -18,4 +18,5 @@ public interface RentalRepository{
     List<Rental> findAllRentalsHistory();
     List<Rental> historyByUserId(Long userId);
     List<Rental> findActiveRentalByUserId(Long userId);
+    Rental findByStripeSessionId(String sessionId);
 }
